@@ -1,6 +1,12 @@
 from rest_framework import generics
-from .models import Enseignant
 from .serializers import EnseignantSerializer
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from .models import Affectation, Enseignant, Matiere, Groupe
+from .serializers import AffectationSerializer
+
+
 
 class EnseignantListCreateAPIView(generics.ListCreateAPIView):
     queryset = Enseignant.objects.all()
@@ -10,37 +16,38 @@ class EnseignantRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIVi
     queryset = Enseignant.objects.all()
     serializer_class = EnseignantSerializer
 
-from rest_framework import viewsets
-from rest_framework.response import Response
-from rest_framework import status
-from .models import Matiere
-from .serializers import MatiereSerializer
 
-from rest_framework import viewsets
-from .models import Matiere
-from .serializers import MatiereSerializer
+class AffecterEnseignantView(APIView):
 
-class MatiereViewSet(viewsets.ModelViewSet):  # Doit être ModelViewSet pour autoriser POST
-    queryset = Matiere.objects.all()
-    serializer_class = MatiereSerializer
+    def post(self, request):
+        enseignant_id = request.data.get('enseignant_id')
+        matiere_id = request.data.get('matiere_id')
+        groupe_id = request.data.get('groupe_id')
+        type_enseignement = request.data.get('type')
+
+        # Vérifier que les objets existent
+        try:
+            enseignant = Enseignant.objects.get(id=enseignant_id)
+            matiere = Matiere.objects.get(id=matiere_id)
+            groupe = Groupe.objects.get(id=groupe_id)
+        except (Enseignant.DoesNotExist, Matiere.DoesNotExist, Groupe.DoesNotExist):
+            return Response({"error": "Enseignant, Matière, ou Groupe non trouvé"}, status=status.HTTP_404_NOT_FOUND)
+
+        # Créer l'affectation
+        affectation = Affectation.objects.create(
+            enseignant=enseignant,
+            matiere=matiere,
+            groupe=groupe,
+            type=type_enseignement
+        )
+
+        serializer = AffectationSerializer(affectation)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-    def create(self, request, *args, **kwargs):
-        """Créer une nouvelle matière"""
-        return super().create(request, *args, **kwargs)
+class ListeAffectationsView(APIView):
 
-    def list(self, request, *args, **kwargs):
-        """Lister toutes les matières"""
-        return super().list(request, *args, **kwargs)
-
-    def retrieve(self, request, *args, **kwargs):
-        """Récupérer une matière spécifique"""
-        return super().retrieve(request, *args, **kwargs)
-
-    def update(self, request, *args, **kwargs):
-        """Mettre à jour une matière"""
-        return super().update(request, *args, **kwargs)
-
-    def destroy(self, request, *args, **kwargs):
-        """Supprimer une matière"""
-        return super().destroy(request, *args, **kwargs)
+    def get(self, request):
+        affectations = Affectation.objects.all()
+        serializer = AffectationSerializer(affectations, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
