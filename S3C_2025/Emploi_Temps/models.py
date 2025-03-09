@@ -45,6 +45,7 @@ class Matiere(models.Model):
         return self.nom
 
 
+
 class Groupe(models.Model):
     nom = models.CharField(max_length=255)
     semestre = models.IntegerField()
@@ -52,7 +53,7 @@ class Groupe(models.Model):
     parent_groupe = models.ForeignKey('self', null=True, blank=True, on_delete=models.SET_NULL)
 
     def __str__(self):
-        return self.nom
+        return f"{self.nom} (Semestre {self.semestre})"
 
 
 class Calendrier(models.Model):
