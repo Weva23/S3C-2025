@@ -2,11 +2,18 @@ from rest_framework import serializers
 from .models import Enseignant, Affectation, Matiere, Groupe, Filiere, ChargeHebdo, Disponibilite
 
 
+
 # Serializer pour ChargeHebdo
 class ChargeHebdoSerializer(serializers.ModelSerializer):
     class Meta:
         model = ChargeHebdo
         fields = ['matiere', 'groupe', 'cm', 'td', 'tp', 'disponibilites_enseignant']
+
+
+
+from .models import Affectation, Enseignant, Matiere, Groupe, Filiere
+
+
 
 
 # Serializer pour Enseignant
@@ -23,14 +30,24 @@ class GroupeSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-# Serializer pour Matiere
+from rest_framework import serializers
+from .models import Matiere
+
+
 class MatiereSerializer(serializers.ModelSerializer):
     class Meta:
         model = Matiere
         fields = '__all__'
 
 
-# Serializer pour Affectation
+
+
+class GroupeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Groupe
+        fields = '__all__'
+
+
 class AffectationSerializer(serializers.ModelSerializer):
     enseignant = EnseignantSerializer()
     matiere = MatiereSerializer()

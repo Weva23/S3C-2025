@@ -34,15 +34,26 @@ class User(models.Model):
         return self.nom
 
 
+from django.db import models
+
+
+
+
 class Matiere(models.Model):
-    code = models.CharField(max_length=50, unique=True)
-    nom = models.CharField(max_length=255)
+    code = models.CharField(max_length=10, unique=True)
+    nom = models.CharField(max_length=100)
     credits = models.IntegerField()
-    semestre = models.IntegerField()
-    filiere = models.ForeignKey(Filiere, on_delete=models.CASCADE)
+    semestre = models.IntegerField(choices=[(i, f"Semestre {i}") for i in range(1, 7)])
+    filiere_choices = [
+        ('TC', 'Tronc Commun'),
+        ('DWM', 'Développement Web et Mobile'),
+        ('DSI', 'Développement de Systèmes Informatiques'),
+        ('RSS', 'Réseaux et Sécurité des Systèmes'),
+    ]
+    filiere = models.CharField(max_length=10, choices=filiere_choices)
 
     def __str__(self):
-        return self.nom
+        return f"{self.code} - {self.nom}"
 
 
 

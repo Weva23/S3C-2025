@@ -57,3 +57,40 @@ class AffectationTests(APITestCase):
         url = '/api/affectations/'
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+from django.test import TestCase
+from rest_framework.test import APIClient
+from rest_framework import status
+from .models import Matiere
+
+class MatiereAPITest(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.matiere_data = {
+            "code": "MAT101",
+            "nom": "Mathématiques",
+            "credits": 3,
+            "semestre": 1,
+            "filiere": "TC"
+        }
+        self.matiere = Matiere.objects.create(**self.matiere_data)
+
+    def test_create_matiere(self):
+        response = self.client.post('/api/matieres/', self.matiere_data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_get_matieres(self):
+        response = self.client.get('/api/matieres/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_get_single_matiere(self):
+        response = self.client.get(f'/api/matieres/{self.matiere.id}/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_update_matiere(self):
+        update_data = {"nom": "Algèbre"}
+        response = self.client.patch(f'/api/matieres/{self.matiere.id}/', update_data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_delete_matiere(self):
+        response = self.client.delete(f'/api/matieres/{self.matiere.id}/')
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
