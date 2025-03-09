@@ -1,15 +1,7 @@
 from rest_framework import serializers
 
 
-from .models import Enseignant
-from .models import Groupe
-
-from .models import Enseignant,Affectation, Enseignant, Matiere, Groupe, Filiere
-
-
-
-
-from .models import Enseignant,Affectation, Enseignant, Matiere, Groupe, Filiere
+from .models import *
 
 
 
@@ -47,3 +39,7 @@ class AffectationSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class DisponibiliteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Disponibilite
+        fields = '__all__'

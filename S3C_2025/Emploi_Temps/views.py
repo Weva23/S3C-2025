@@ -1,26 +1,17 @@
-from rest_framework import generics
-from .serializers import EnseignantSerializer
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from .models import Affectation, Enseignant, Matiere, Groupe
-from .serializers import AffectationSerializer
 
-
-
-    
-from rest_framework import viewsets, filters
+from datetime import timedelta
+from rest_framework import generics, viewsets, filters, status
 from rest_framework.permissions import IsAuthenticated
-from .models import Groupe
-from .serializers import GroupeSerializer
-
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
-from .models import Affectation, Enseignant, Matiere, Groupe
-from .serializers import AffectationSerializer
 
-
+from .models import Affectation, Enseignant, Matiere, Groupe, Disponibilite, Calendrier
+from .serializers import (
+    EnseignantSerializer,
+    AffectationSerializer,
+    GroupeSerializer,
+    DisponibiliteSerializer
+)
 
 
 class EnseignantListCreateAPIView(generics.ListCreateAPIView):
@@ -87,3 +78,80 @@ class ListeAffectationsView(APIView):
 
 
 
+class DisponibiliteViewSet(viewsets.ModelViewSet):
+    queryset = Disponibilite.objects.all()
+    serializer_class = DisponibiliteSerializer
+
+
+# ----- Vue pour mettre à jour la disponibilité -----
+class UpdateDisponibiliteView(APIView):
+
+    def post(self, request, pk):
+        try:
+            disponibilite = Disponibilite.objects.get(pk=pk)
+        except Disponibilite.DoesNotExist:
+            return Response({"error": "Disponibilité non trouvée"}, status=status.HTTP_404_NOT_FOUND)
+
+        disponibilite.disponible = request.data.get('disponible', disponibilite.disponible)
+        disponibilite.save()
+        return Response({'status': 'Disponibilité mise à jour'})
+
+
+# ----- Vue pour copier les disponibilités de la semaine précédente -----
+class CopyPreviousWeekView(APIView):
+
+    def post(self, request):
+        enseignant_id = request.data.get('enseignant_id')
+        current_week = request.data.get('current_week')
+
+        if not enseignant_id or not current_week:
+            return Response({"error": "Enseignant ID et semaine actuelle requis"}, status=status.HTTP_400_BAD_REQUEST)
+
+        previous_week = current_week - timedelta(weeks=1)
+
+        previous_disponibilites = Disponibilite.objects.filter(enseignant_id=enseignant_id, calendrier__date=previous_week)
+
+        new_disponibilites = [
+            Disponibilite(
+                enseignant=dispo.enseignant,
+                calendrier=Calendrier.objects.create(jour=dispo.calendrier.jour + timedelta(days=7)),
+                disponible=dispo.disponible
+            )
+            for dispo in previous_disponibilites
+        ]
+
+        Disponibilite.objects.bulk_create(new_disponibilites)
+
+        return Response({'status': 'Disponibilités copiées depuis la semaine précédente'})
+
+
+# ----- Vue pour reconduire les disponibilités à la semaine suivante -----
+class ReconduireDisponibilitesView(APIView):
+
+    def post(self, request):
+        enseignant_id = request.data.get('enseignant_id')
+
+        if not enseignant_id:
+            return Response({"error": "Enseignant ID requis"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            enseignant = Enseignant.objects.get(id=enseignant_id)
+        except Enseignant.DoesNotExist:
+            return Response({"error": "Enseignant non trouvé"}, status=status.HTTP_404_NOT_FOUND)
+
+        # Récupérer les dernières disponibilités
+        latest_disponibilites = Disponibilite.objects.filter(
+            enseignant=enseignant
+        ).order_by('-calendrier__date')[:7]
+
+        new_disponibilites = [
+            Disponibilite(
+                enseignant=enseignant,
+                calendrier=Calendrier.objects.create(jour=dispo.calendrier.jour + timedelta(days=7)),
+                disponible=dispo.disponible
+            )
+            for dispo in latest_disponibilites
+        ]
+
+        Disponibilite.objects.bulk_create(new_disponibilites)
+        return Response({"status": "Disponibilités reconduites avec succès"})
