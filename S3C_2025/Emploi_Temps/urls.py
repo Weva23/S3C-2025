@@ -9,11 +9,13 @@ urlpatterns = [
 ]
 
 
+
 router = DefaultRouter()
 router.register(r'groupes', GroupeViewSet)  # Génération des routes CRUD
 
 urlpatterns = [
     path('', include(router.urls)),  # Routes API automatiques
 ]
+
 
 

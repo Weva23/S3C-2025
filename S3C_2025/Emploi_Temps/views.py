@@ -1,5 +1,12 @@
 from rest_framework import generics
 from .serializers import EnseignantSerializer
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from .models import Affectation, Enseignant, Matiere, Groupe
+from .serializers import AffectationSerializer
+
+
 
     
 from rest_framework import viewsets, filters
@@ -41,6 +48,8 @@ class GroupeViewSet(viewsets.ModelViewSet):
 
 
 
+
+
 class AffecterEnseignantView(APIView):
 
     def post(self, request):
@@ -75,4 +84,6 @@ class ListeAffectationsView(APIView):
         affectations = Affectation.objects.all()
         serializer = AffectationSerializer(affectations, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 

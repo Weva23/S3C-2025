@@ -1,7 +1,13 @@
 from rest_framework import serializers
+<<<<<<< HEAD
 
 from .models import Enseignant
 from .models import Groupe
+
+from .models import Enseignant,Affectation, Enseignant, Matiere, Groupe, Filiere
+
+
+
 
 from .models import Enseignant,Affectation, Enseignant, Matiere, Groupe, Filiere
 
@@ -17,6 +23,7 @@ class GroupeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Groupe
         fields = '__all__'
+
 
 class MatiereSerializer(serializers.ModelSerializer):
     class Meta:
@@ -38,4 +45,5 @@ class AffectationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Affectation
         fields = '__all__'
+
 
