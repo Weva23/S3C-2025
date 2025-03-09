@@ -63,3 +63,10 @@ class DisponibiliteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Disponibilite
         fields = '__all__'
+from rest_framework import serializers
+from .models import EmploiTemps
+
+class EmploiTempsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EmploiTemps
+        fields = "__all__"  # ✅ Inclut maintenant creneau_fixe

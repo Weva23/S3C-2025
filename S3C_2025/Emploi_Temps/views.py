@@ -64,3 +64,62 @@ class ListeAffectationsView(APIView):
         affectations = Affectation.objects.all()
         serializer = AffectationSerializer(affectations, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from .emploi_temps_logic import planifier_cours
+
+class GenererEmploiDuTempsView(APIView):
+    def post(self, request):
+        groupes = request.data.get("groupes", [])
+        matieres = request.data.get("matieres", [])
+        enseignants = request.data.get("enseignants", [])
+        disponibilites = request.data.get("disponibilites", {})
+        contraintes_fixes = request.data.get("contraintes_fixes", [])
+        
+        emploi_du_temps = planifier_cours(groupes, matieres, enseignants, disponibilites, contraintes_fixes)
+        
+        return Response({"emploi_du_temps": emploi_du_temps}, status=status.HTTP_200_OK)
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from .models import EmploiTemps
+from .serializers import EmploiTempsSerializer
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from .models import EmploiTemps
+from .serializers import EmploiTempsSerializer
+
+class FixerCreneauView(APIView):
+    """
+    API permettant de fixer un créneau spécifique pour un cours donné.
+    """
+
+    def post(self, request):
+        emploi_temps_id = request.data.get("emploi_temps_id")
+        try:
+            emploi = EmploiTemps.objects.get(id=emploi_temps_id)
+            emploi.creneau_fixe = True  # ✅ Marquer le créneau comme fixé
+            emploi.save()
+            return Response({"message": "Créneau fixé avec succès !"}, status=status.HTTP_200_OK)
+        except EmploiTemps.DoesNotExist:
+            return Response({"error": "Ce cours n'existe pas."}, status=status.HTTP_404_NOT_FOUND)
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from .models import EmploiTemps
+from .serializers import EmploiTempsSerializer
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from .models import EmploiTemps
+from .serializers import EmploiTempsSerializer
+
+class ListeEmploisDuTempsView(APIView):
+    def get(self, request):
+        emplois = EmploiTemps.objects.all()
+        serializer = EmploiTempsSerializer(emplois, many=True)
+        return Response({"emploi_du_temps": serializer.data}, status=status.HTTP_200_OK)

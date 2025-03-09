@@ -111,6 +111,7 @@ class Affectation(models.Model):
     type = models.CharField(max_length=3, choices=TYPE_CHOICES)
 
     def __str__(self):
+
         return f'{self.enseignant} - {self.matiere} - {self.groupe} - {self.type}'
 
 
@@ -126,10 +127,12 @@ class EmploiTemps(models.Model):
     enseignant = models.ForeignKey(Enseignant, on_delete=models.CASCADE)
     calendrier = models.ForeignKey(Calendrier, on_delete=models.CASCADE)
     type = models.CharField(max_length=3, choices=TYPE_CHOICES)
+    
+    # ✅ Ajout du champ pour fixer un créneau
+    creneau_fixe = models.BooleanField(default=False)  
 
     def __str__(self):
         return f'{self.groupe} - {self.matiere} - {self.enseignant} - {self.calendrier} - {self.type}'
-
 
 class Exception(models.Model):
     calendrier = models.ForeignKey(Calendrier, on_delete=models.CASCADE)
