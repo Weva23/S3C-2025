@@ -1,7 +1,12 @@
 from rest_framework import serializers
-from .models import Enseignant,Affectation, Enseignant, Matiere, Groupe, Filiere
+from .models import Enseignant,Affectation, Enseignant, Matiere, Groupe, Filiere, ChargeHebdo
 
 
+
+class ChargeHebdoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ChargeHebdo
+        fields = ['matiere', 'groupe', 'cm', 'td', 'tp', 'disponibilites_enseignant']
 
 class EnseignantSerializer(serializers.ModelSerializer):
     class Meta:

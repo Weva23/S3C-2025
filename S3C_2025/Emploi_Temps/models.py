@@ -77,12 +77,13 @@ class Disponibilite(models.Model):
 class ChargeHebdo(models.Model):
     matiere = models.ForeignKey(Matiere, on_delete=models.CASCADE)
     groupe = models.ForeignKey(Groupe, on_delete=models.CASCADE)
-    cm = models.IntegerField()
-    td = models.IntegerField()
-    tp = models.IntegerField()
+    cm = models.IntegerField(default=0)
+    td = models.IntegerField(default=0)
+    tp = models.IntegerField(default=0)
+    disponibilites_enseignant = models.JSONField(default=dict, blank=True)
 
     def __str__(self):
-        return f'{self.matiere} - {self.groupe}'
+        return f"{self.matiere} - {self.groupe}"
 
 
 class Affectation(models.Model):

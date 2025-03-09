@@ -1,7 +1,39 @@
 # tests.py
 from rest_framework.test import APITestCase
 from rest_framework import status
-from .models import Affectation, Enseignant, Matiere, Groupe
+from .models import Affectation, Enseignant, Matiere, Groupe, ChargeHebdo
+
+class ChargeHebdoTests(APITestCase):
+    def setUp(self):
+        self.matiere = Matiere.objects.create(nom='Mathématiques', code='MATH101', credits=3, semestre=1)
+        self.groupe = Groupe.objects.create(nom='Groupe A', semestre=1, filiere=None)
+
+    def test_create_charge_hebdo(self):
+        data = {
+            'matiere': self.matiere.id,
+            'groupe': self.groupe.id,
+            'cm': 4,
+            'td': 2,
+            'tp': 1,
+            'disponibilites_enseignant': {"lundi": "10:00-12:00", "mercredi": "14:00-16:00"}
+        }
+        response = self.client.post('/api/charge-hebdo/', data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['cm'], 4)
+
+    def test_update_charge_hebdo(self):
+        charge = ChargeHebdo.objects.create(matiere=self.matiere, groupe=self.groupe, cm=4, td=2, tp=1)
+        data = {
+            'matiere': self.matiere.id,
+            'groupe': self.groupe.id,
+            'cm': 5,
+            'td': 2,
+            'tp': 1,
+            'disponibilites_enseignant': {"lundi": "10:00-12:00", "vendredi": "14:00-16:00"}
+        }
+        response = self.client.put(f'/api/charge-hebdo/{charge.id}/', data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['cm'], 5)
 
 class AffectationTests(APITestCase):
 
