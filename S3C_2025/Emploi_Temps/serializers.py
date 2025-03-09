@@ -1,5 +1,5 @@
 from rest_framework import serializers
-<<<<<<< HEAD
+
 
 from .models import Enseignant
 from .models import Groupe
