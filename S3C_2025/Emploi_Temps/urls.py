@@ -1,4 +1,5 @@
 from django.urls import path, include
+<<<<<<< HEAD
 from rest_framework.routers import DefaultRouter
 from .views import (
     # Enseignants
@@ -40,3 +41,22 @@ urlpatterns = [
     path('disponibilites/copy-previous-week/', CopyPreviousWeekView.as_view(), name='copy-previous-week'),
     path('disponibilites/reconduire/', ReconduireDisponibilitesView.as_view(), name='reconduire-disponibilites'),
 ]
+=======
+from .views import EnseignantListCreateAPIView, EnseignantRetrieveUpdateDestroyAPIView, AffecterEnseignantView, ListeAffectationsView, ChargeHebdoViewSet
+from rest_framework.routers import DefaultRouter
+
+# Créer un routeur pour les vues basées sur les ViewSets
+router = DefaultRouter()
+router.register(r'charge-hebdo', ChargeHebdoViewSet)
+
+# URLs spécifiques à vos vues
+urlpatterns = [
+    path('enseignants/', EnseignantListCreateAPIView.as_view(), name='enseignant-list'),
+    path('enseignants/<int:pk>/', EnseignantRetrieveUpdateDestroyAPIView.as_view(), name='enseignant-detail'),
+    path('affecter/', AffecterEnseignantView.as_view(), name='affecter_enseignant'),
+    path('affectations/', ListeAffectationsView.as_view(), name='liste_affectations'),
+]
+
+# Inclure les routes générées par le routeur pour l'API de charge-hebdo
+urlpatterns += router.urls
+>>>>>>> f9998d1d562e137f9fee37bace2a2a2672ceedb9

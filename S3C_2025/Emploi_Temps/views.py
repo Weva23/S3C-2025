@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 from datetime import timedelta
 from rest_framework import generics, viewsets, filters, status
@@ -12,6 +13,73 @@ from .serializers import (
     GroupeSerializer,
     DisponibiliteSerializer
 )
+=======
+from rest_framework import generics
+from .serializers import EnseignantSerializer
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from .models import Affectation, Enseignant, Matiere, Groupe, ChargeHebdo
+from .serializers import AffectationSerializer
+from rest_framework import status
+from rest_framework import viewsets
+from .serializers import ChargeHebdoSerializer, GroupeSerializer
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import filters
+
+
+class ChargeHebdoViewSet(viewsets.ModelViewSet):
+    queryset = ChargeHebdo.objects.all()
+    serializer_class = ChargeHebdoSerializer
+
+    def create(self, request, *args, **kwargs):
+        matiere_id = request.data.get('matiere')
+        groupe_id = request.data.get('groupe')
+
+        try:
+            matiere = Matiere.objects.get(id=matiere_id)
+        except Matiere.DoesNotExist:
+            return Response({"detail": "Matière non trouvée"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            groupe = Groupe.objects.get(id=groupe_id)
+        except Groupe.DoesNotExist:
+            return Response({"detail": "Groupe non trouvé"}, status=status.HTTP_400_BAD_REQUEST)
+
+        charge_hebdo = ChargeHebdo.objects.filter(matiere=matiere, groupe=groupe).first()
+
+        if charge_hebdo:
+            charge_hebdo.cm = request.data.get('cm', charge_hebdo.cm)
+            charge_hebdo.td = request.data.get('td', charge_hebdo.td)
+            charge_hebdo.tp = request.data.get('tp', charge_hebdo.tp)
+            charge_hebdo.disponibilites_enseignant = request.data.get('disponibilites_enseignant', charge_hebdo.disponibilites_enseignant)
+            charge_hebdo.save()
+            return Response(ChargeHebdoSerializer(charge_hebdo).data, status=status.HTTP_200_OK)
+        else:
+            charge_hebdo = ChargeHebdo.objects.create(
+                matiere=matiere,
+                groupe=groupe,
+                cm=request.data.get('cm', 0),
+                td=request.data.get('td', 0),
+                tp=request.data.get('tp', 0),
+                disponibilites_enseignant=request.data.get('disponibilites_enseignant', {})
+            )
+            return Response(ChargeHebdoSerializer(charge_hebdo).data, status=status.HTTP_201_CREATED)
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
+>>>>>>> f9998d1d562e137f9fee37bace2a2a2672ceedb9
 
 
 class EnseignantListCreateAPIView(generics.ListCreateAPIView):
@@ -22,7 +90,6 @@ class EnseignantRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIVi
     queryset = Enseignant.objects.all()
     serializer_class = EnseignantSerializer
 
-    
 
 class GroupeViewSet(viewsets.ModelViewSet):
     """
@@ -35,10 +102,6 @@ class GroupeViewSet(viewsets.ModelViewSet):
     # Ajout de filtres pour rechercher les groupes
     filter_backends = [filters.SearchFilter]
     search_fields = ['nom', 'filiere__nom', 'semestre']
-
-
-
-
 
 
 class AffecterEnseignantView(APIView):
