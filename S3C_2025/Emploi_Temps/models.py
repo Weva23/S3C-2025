@@ -34,15 +34,42 @@ class User(models.Model):
         return self.nom
 
 
+# class Matiere(models.Model):
+#     code = models.CharField(max_length=50, unique=True)
+#     nom = models.CharField(max_length=255)
+#     credits = models.IntegerField()
+#     semestre = models.IntegerField()
+#     filiere = models.ForeignKey(Filiere, on_delete=models.CASCADE)
+
+#     def __str__(self):
+#         return self.nom
+from django.db import models
+
 class Matiere(models.Model):
-    code = models.CharField(max_length=50, unique=True)
+    CODE_SEMESTRE_CHOICES = [
+        (1, "Semestre 1"),
+        (2, "Semestre 2"),
+        (3, "Semestre 3"),
+        (4, "Semestre 4"),
+        (5, "Semestre 5"),
+        (6, "Semestre 6"),
+    ]
+    
+    FILIERE_CHOICES = [
+        ("TC", "Tronc Commun"),
+        ("DWM", "Développement Web et Mobile"),
+        ("DSI", "Développement des Systèmes Informatiques"),
+        ("RSS", "Réseaux et Sécurité des Systèmes"),
+    ]
+    
+    code = models.CharField(max_length=10, unique=True)
     nom = models.CharField(max_length=255)
-    credits = models.IntegerField()
-    semestre = models.IntegerField()
-    filiere = models.ForeignKey(Filiere, on_delete=models.CASCADE)
+    credits = models.PositiveIntegerField()
+    semestre = models.IntegerField(choices=CODE_SEMESTRE_CHOICES)
+    filiere = models.CharField(max_length=10, choices=FILIERE_CHOICES)
 
     def __str__(self):
-        return self.nom
+        return f"{self.code} - {self.nom}"
 
 
 class Groupe(models.Model):
