@@ -7,8 +7,9 @@ from .models import Affectation, Enseignant, Matiere, Groupe, ChargeHebdo
 from .serializers import AffectationSerializer
 from rest_framework import status
 from rest_framework import viewsets
-from .serializers import ChargeHebdoSerializer
-
+from .serializers import ChargeHebdoSerializer, GroupeSerializer
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import filters
 
 
 class ChargeHebdoViewSet(viewsets.ModelViewSet):
@@ -73,6 +74,19 @@ class EnseignantRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIVi
     serializer_class = EnseignantSerializer
 
 
+class GroupeViewSet(viewsets.ModelViewSet):
+    """
+    API pour gérer les groupes : CRUD et filtres.
+    """
+    queryset = Groupe.objects.all()
+    serializer_class = GroupeSerializer
+    permission_classes = [IsAuthenticated]  # Accès restreint aux utilisateurs connectés
+
+    # Ajout de filtres pour rechercher les groupes
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['nom', 'filiere__nom', 'semestre']
+
+
 class AffecterEnseignantView(APIView):
 
     def post(self, request):
@@ -107,3 +121,6 @@ class ListeAffectationsView(APIView):
         affectations = Affectation.objects.all()
         serializer = AffectationSerializer(affectations, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+
